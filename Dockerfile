@@ -1,4 +1,5 @@
 # Используем базовый образ Node.js
+# Note: curl is used for health checks and is available in the official Node.js images
 FROM node:18
 
 # Устанавливаем рабочую директорию внутри контейнера
