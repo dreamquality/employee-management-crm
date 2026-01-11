@@ -27,6 +27,10 @@ jobs:
         if: always()
         run: docker compose --profile ci down -v
 
+      - name: Remove node_modules created by Docker
+        if: github.ref == 'refs/heads/main'
+        run: sudo rm -rf node_modules
+
       - name: Set up Node.js (for Swagger build)
         if: github.ref == 'refs/heads/main'
         uses: actions/setup-node@v4
