@@ -11,7 +11,7 @@ COPY package*.json ./
 # Устанавливаем зависимости
 RUN npm config set strict-ssl false && npm install
 
-# Копируем entrypoint скрипты и делаем их исполняемыми (before app code for better caching)
+# Копируем entrypoint скрипты и делаем их исполняемыми (copy before app code to avoid cache invalidation when only app code changes)
 COPY entrypoint.sh /entrypoint.sh
 COPY entrypoint-test.sh /entrypoint-test.sh
 RUN chmod +x /entrypoint.sh /entrypoint-test.sh
