@@ -1,20 +1,9 @@
-version: "3.8"
-
 services:
   app:
     build: .
     container_name: my_app
-    environment:
-      - NODE_ENV=development
-      - PORT=3000
-      - DB_HOST=db
-      - DB_PORT=5432
-      - DB_NAME=my_database
-      - DB_USER=postgres
-      - DB_PASSWORD=postgres
-      - JWT_SECRET=your_jwt_secret
-      - SECRET_WORD=your_secret_word
-      - CORS_ORIGIN=http://localhost:5173
+    env_file:
+      - .env
     ports:
       - "3000:3000"
     depends_on:
@@ -23,32 +12,42 @@ services:
     volumes:
       - ./:/app
       - /app/node_modules
-    command: sh -c "npx sequelize-cli db:migrate && npm run dev"
+    command: npm run dev
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    profiles:
+      - dev
+      - ci
+      - e2e
 
   frontend:
     build:
       context: ./frontend
       dockerfile: Dockerfile.dev
     container_name: my_frontend
-    environment:
-      - VITE_API_URL=http://localhost:3000
+    env_file:
+      - .env
     ports:
       - "5173:5173"
     depends_on:
-      - app
+      app:
+        condition: service_healthy
     volumes:
       - ./frontend:/app
       - /app/node_modules
+    profiles:
+      - dev
+      - e2e
 
   db:
     image: postgres:16
     container_name: my_db
-    environment:
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=postgres
-      - POSTGRES_DB=my_database
-    ports:
-      - "5432:5432"
+    env_file:
+      - .env
     volumes:
       - db_data:/var/lib/postgresql/data
     healthcheck:
@@ -56,26 +55,50 @@ services:
       interval: 5s
       timeout: 5s
       retries: 5
+    profiles:
+      - dev
+      - ci
+      - e2e
 
   test:
     build: .
     container_name: my_test
-    environment:
-      - NODE_ENV=test
-      - DB_HOST=db
-      - DB_PORT=5432
-      - DB_NAME_TEST=my_database_test
-      - DB_USER=postgres
-      - DB_PASSWORD=postgres
-      - JWT_SECRET=your_jwt_secret
-      - SECRET_WORD=your_secret_word
+    env_file:
+      - .env.test
     depends_on:
       db:
         condition: service_healthy
     volumes:
       - ./:/app
       - /app/node_modules
-    command: sh -c "npx sequelize-cli db:create --env test && npx sequelize-cli db:migrate --env test && npm run test"
+    entrypoint: ["/entrypoint-test.sh"]
+    command: npm run test
+    profiles:
+      - ci
+
+  # Playwright E2E testing service
+  # Note: Requires 'test:e2e' script in frontend/package.json
+  # Add to frontend/package.json: "test:e2e": "playwright test"
+  playwright:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.dev
+    container_name: my_playwright
+    env_file:
+      - .env.e2e
+    depends_on:
+      app:
+        condition: service_healthy
+      frontend:
+        condition: service_started
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    # Update this command based on your E2E test setup
+    # Using 'exit 1' to fail explicitly if E2E tests are not configured
+    command: sh -c "echo 'E2E tests not configured. Add test:e2e script to frontend/package.json' && exit 1"
+    profiles:
+      - e2e
 
 volumes:
   db_data:

@@ -10,56 +10,40 @@ jobs:
   test:
     runs-on: ubuntu-latest
 
-    services:
-      postgres:
-        image: postgres:16
-        env:
-          POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: postgres
-          POSTGRES_DB: my_database
-        ports:
-          - 5432:5432
-        options: >-
-          --health-cmd pg_isready
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Set up Node.js
+      - name: Setup environment files
+        run: |
+          cp .env.test.example .env.test
+          cp .env.example .env
+
+      - name: Run tests with Docker Compose
+        run: |
+          docker compose --profile ci up --abort-on-container-exit --exit-code-from test
+
+      - name: Cleanup
+        if: always()
+        run: docker compose --profile ci down -v
+
+      - name: Set up Node.js (for Swagger build)
+        if: github.ref == 'refs/heads/main'
         uses: actions/setup-node@v4
         with:
           node-version: '18'
           cache: 'npm'
 
-      - name: Install dependencies
+      - name: Install dependencies (for Swagger build)
+        if: github.ref == 'refs/heads/main'
         run: npm ci
 
-      - name: Create test database
-        run: |
-          PGPASSWORD=postgres psql -h localhost -U postgres -c "CREATE DATABASE my_database_test;"
-
-      - name: Run tests
-        env:
-          NODE_ENV: test
-          DB_HOST: localhost
-          DB_PORT: 5432
-          DB_NAME_TEST: my_database_test
-          DB_USER: postgres
-          DB_PASSWORD: postgres
-          JWT_SECRET: test_jwt_secret
-          SECRET_WORD: test_secret_word
-        run: npm test
-
       - name: Build Swagger documentation
-        if: success() && github.ref == 'refs/heads/main'
+        if: github.ref == 'refs/heads/main'
         run: npm run build:swagger
 
       - name: Deploy to GitHub Pages
-        if: success() && github.ref == 'refs/heads/main'
+        if: github.ref == 'refs/heads/main'
         uses: peaceiris/actions-gh-pages@v4
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}

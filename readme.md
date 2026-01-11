@@ -61,18 +61,39 @@ Employees can update their personal information, such as name, contact details, 
 
 ## Quick Start with Docker
 
-The easiest way to run the full stack is using Docker Compose:
+The application uses Docker Compose with profile-based execution for different environments.
 
+### Prerequisites
+- Docker and Docker Compose installed
+- Git (to clone the repository)
+
+### Setup
+
+1. Clone the repository and navigate to the project directory:
+   ```bash
+   git clone https://github.com/dreamquality/employee-management-api.git
+   cd employee-management-api
+   ```
+
+2. Copy environment files:
+   ```bash
+   cp .env.example .env
+   cp .env.test.example .env.test
+   cp .env.e2e.example .env.e2e
+   ```
+
+3. (Optional) Update environment variables in `.env` files for your setup
+
+### Running the Application
+
+#### Development Mode (Recommended)
+Start all services for local development:
 ```bash
-# Start all services (database, API, and frontend)
-docker compose up --build
-
-# Or start in detached mode
-docker compose up -d --build
+docker compose --profile dev up
 ```
 
-This will start:
-- **PostgreSQL Database** on port 5432
+This starts:
+- **PostgreSQL Database** (internal only - not exposed to host, accessible via `docker compose exec`)
 - **Backend API** on port 3000
 - **Frontend Application** on port 5173
 
@@ -81,6 +102,93 @@ Access the application at `http://localhost:5173`
 **Default Admin Credentials:**
 - Email: `admin1@example.com`
 - Password: `adminpassword`
+
+#### CI Testing Mode
+Run automated tests (used in GitHub Actions):
+```bash
+docker compose --profile ci up --abort-on-container-exit --exit-code-from test
+```
+
+Clean up after tests:
+```bash
+docker compose --profile ci down -v
+```
+
+#### E2E Testing Mode
+Run end-to-end tests (requires Playwright setup):
+```bash
+docker compose --profile e2e up --abort-on-container-exit --exit-code-from playwright
+```
+
+> Note: The `playwright` service in `docker-compose.yml` currently uses a placeholder command that exits with an error. Playwright is not configured by default. Before using the `e2e` profile, configure Playwright in the frontend and add a `test:e2e` script to `frontend/package.json` that runs your E2E tests. Until this is done, running the E2E profile will fail as expected.
+### Docker Compose Profiles
+
+The application supports three profiles for different use cases:
+
+| Profile | Services | Use Case |
+|---------|----------|----------|
+| `dev` | app, frontend, db | Local development with hot reload |
+| `ci` | app, db, test | Automated testing in CI/CD pipelines |
+| `e2e` | app, frontend, db, playwright | End-to-end testing |
+
+### Common Docker Commands
+
+```bash
+# Stop all services
+docker compose down
+
+# Stop and remove volumes (clean slate)
+docker compose down -v
+
+# View logs
+docker compose logs -f
+
+# View logs for specific service
+docker compose logs -f app
+
+# Access database
+docker compose exec db psql -U postgres -d my_database
+
+# Rebuild containers
+docker compose build --no-cache
+```
+
+### Docker Architecture
+
+The refactored Docker setup includes:
+
+- **Isolated Networking**: Database is not exposed to host, services communicate via Docker network
+- **Health Checks**: App service includes health check endpoint (`/health`) to ensure proper startup order
+- **Environment Files**: All secrets and configuration in `.env` files (not committed to Git)
+- **Entrypoint Scripts**: Migrations run automatically before app/tests start
+- **Profile-Based**: Run only the services you need for your task
+
+### Troubleshooting Docker
+
+| Problem | Solution |
+|---------|----------|
+| "no configuration file provided" | Run: `cp .env.example .env` |
+| Services don't start | Ensure you specify a profile: `--profile dev` |
+| Can't connect to DB from host | DB is internal only, use: `docker compose exec db psql -U postgres` |
+| Health check fails | Check logs: `docker compose logs app` |
+| CORS errors in browser | Check `CORS_ORIGIN` in `.env` file |
+
+### GitHub Actions Integration
+
+The CI workflow automatically uses Docker Compose:
+
+```yaml
+- name: Setup environment files
+  run: |
+    cp .env.test.example .env.test
+    cp .env.example .env
+
+- name: Run tests with Docker Compose
+  run: |
+    docker compose --profile ci up --abort-on-container-exit --exit-code-from test
+```
+
+This ensures consistency between local development and CI environments.
 
 ## Manual Setup
 
@@ -326,79 +434,16 @@ If your frontend and backend are on different domains, you may need to update CO
 
 For more help, refer to [Render's documentation](https://render.com/docs) or check the service logs in your Render dashboard.
 
-### Docker
+### Legacy Docker Setup (Old Method)
 
-This application can be containerized using Docker. The repository includes Dockerfiles and a `docker-compose.yml` for easy setup.
+For backward compatibility, you can still use the old method without profiles:
 
-#### Using Docker Compose
+```bash
+# Start all services
+docker compose up --build
+```
 
-The `docker-compose.yml` file includes four services:
-- **db**: PostgreSQL database
-- **app**: The backend API server in development mode
-- **frontend**: The React frontend application
-- **test**: Test runner service
-
-1. **Build and Run the Full Stack**:
-   ```sh
-   docker compose up --build
-   ```
-   This command will start:
-   - PostgreSQL database on port 5432
-   - Backend API on port 3000
-   - Frontend on port 5173
-
-   Access the application at `http://localhost:5173`
-
-2. **Run Only Backend and Database**:
-   ```sh
-   docker compose up --build app db
-   ```
-   The API will be accessible at `http://localhost:3000`.
-
-3. **Run Tests**:
-   
-   Before running tests for the first time, create the test database:
-   ```sh
-   docker compose up -d db
-   docker compose exec db psql -U postgres -c "CREATE DATABASE my_database_test;"
-   ```
-   
-   Then run the tests:
-   ```sh
-   docker compose run --rm test
-   ```
-   This command will run the test suite in a containerized environment with its own test database.
-
-4. **Stopping and Removing Containers**:
-   - To stop the containers:
-     ```sh
-     docker compose down
-     ```
-   - To stop and remove containers along with volumes:
-     ```sh
-     docker compose down -v
-     ```
-
-#### Docker Configuration
-
-The application uses the following services defined in `docker-compose.yml`:
-
-**Database Service (db):**
-- Image: postgres:16
-- Port: 5432
-- Default credentials: postgres/postgres
-- Database: my_database
-
-**Application Service (app):**
-- Runs in development mode
-- Port: 3000
-- Automatically runs database migrations on startup
-- Uses hot-reloading via nodemon
-
-**Test Service (test):**
-- Runs the test suite using Mocha
-- Uses a separate test database (my_database_test)
-- Configured with NODE_ENV=test
+However, it's recommended to use the profile-based approach described in the "Quick Start with Docker" section above for better control and CI integration.
 
 ## API Documentation
 
@@ -418,13 +463,14 @@ This project uses GitHub Actions for automated testing and documentation deploym
 - Push to `main` or `develop` branches
 - Pull requests to `main` or `develop` branches
 
-The CI workflow:
-1. Sets up Node.js 18 and PostgreSQL 16
-2. Installs dependencies
-3. Creates test database
-4. Runs the full test suite
-5. Generates Swagger documentation (only on `main` branch)
-6. Deploys documentation to GitHub Pages in the `docs/` folder (only on `main` branch)
+The CI workflow uses Docker Compose with the `ci` profile:
+1. Sets up environment files
+2. Runs tests in isolated Docker containers using `docker compose --profile ci up`
+3. Automatically cleans up containers and volumes
+4. Generates Swagger documentation (only on `main` branch)
+5. Deploys documentation to GitHub Pages in the `docs/` folder (only on `main` branch)
+
+This approach ensures consistency between local development and CI environments, as both use the same Docker Compose configuration.
 
 The generated documentation is automatically published to GitHub Pages at `https://<username>.github.io/<repo>/docs/` after successful test runs on the main branch.
 
