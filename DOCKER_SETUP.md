@@ -114,9 +114,15 @@ docker compose --profile dev --profile ci --profile e2e up
 - **Profiles**: ci
 
 ### Playwright Service
-- **Command**: npm run test:e2e
+- **Command**: npm run test:e2e (requires configuration)
 - **Depends on**: app (healthy), frontend (started)
 - **Profiles**: e2e
+- **Note**: Requires adding `"test:e2e": "playwright test"` to frontend/package.json
+
+**To enable E2E tests:**
+1. Install Playwright: `cd frontend && npm install -D @playwright/test`
+2. Add script to frontend/package.json: `"test:e2e": "playwright test"`
+3. Update command in docker-compose.yml: `command: npm run test:e2e`
 
 ## GitHub Actions Integration
 

@@ -69,14 +69,14 @@ app.get("/health", (req, res) => {
 **New in docker-compose:**
 ```yaml
 healthcheck:
-  test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3000/health"]
+  test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
   interval: 10s
   timeout: 5s
   retries: 5
   start_period: 30s
 ```
 
-**Why:** Ensures app is fully ready before dependent services start. Critical for CI reliability.
+**Why:** Ensures app is fully ready before dependent services start. Critical for CI reliability. Uses curl which is available in Node.js base images.
 
 ---
 

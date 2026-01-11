@@ -168,7 +168,7 @@ services:
     command: npm run test
     profiles: [ci]                 # ✅ Only in CI
 
-  playwright:                       # ✅ New E2E service
+  playwright:                       # ✅ New E2E service (placeholder)
     build:
       context: ./frontend
       dockerfile: Dockerfile.dev
@@ -178,7 +178,8 @@ services:
         condition: service_healthy
       frontend:
         condition: service_started
-    command: npm run test:e2e
+    # Note: Requires test:e2e script in frontend/package.json
+    command: echo "E2E tests not configured"
     profiles: [e2e]
 ```
 
