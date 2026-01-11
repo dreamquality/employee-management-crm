@@ -126,10 +126,10 @@ docker compose --profile dev --profile ci --profile e2e up
 
 ## GitHub Actions Integration
 
-Example workflow for CI:
+Example workflow for CI (see `.github/workflows/test.yml`):
 
 ```yaml
-name: CI Tests
+name: Tests
 on: [push, pull_request]
 
 jobs:
@@ -138,20 +138,21 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       
-      - name: Create environment files
+      - name: Setup environment files
         run: |
           cp .env.test.example .env.test
           cp .env.example .env
       
-      - name: Run tests
+      - name: Run tests with Docker Compose
         run: |
           docker compose --profile ci up --abort-on-container-exit --exit-code-from test
       
-      - name: Clean up
+      - name: Cleanup
         if: always()
         run: docker compose --profile ci down -v
 ```
 
+The workflow now uses the docker-compose CI profile for testing, providing full isolation and consistency between local and CI environments.
 ## Network Communication
 
 All inter-container communication uses service names:
