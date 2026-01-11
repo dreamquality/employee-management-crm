@@ -10,13 +10,13 @@ COPY package*.json ./
 # Устанавливаем зависимости
 RUN npm config set strict-ssl false && npm install
 
-# Копируем остальной код приложения
-COPY . .
-
-# Копируем entrypoint скрипты и делаем их исполняемыми
+# Копируем entrypoint скрипты и делаем их исполняемыми (before app code for better caching)
 COPY entrypoint.sh /entrypoint.sh
 COPY entrypoint-test.sh /entrypoint-test.sh
 RUN chmod +x /entrypoint.sh /entrypoint-test.sh
+
+# Копируем остальной код приложения
+COPY . .
 
 # Указываем порт, который будет использоваться
 EXPOSE 3000

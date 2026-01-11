@@ -95,8 +95,8 @@ services:
       - ./frontend:/app
       - /app/node_modules
     # Update this command based on your E2E test setup
-    # Using 'false' to fail if E2E tests are not configured
-    command: sh -c "echo 'E2E tests not configured. Add test:e2e script to frontend/package.json' && false"
+    # Using 'exit 1' to fail explicitly if E2E tests are not configured
+    command: sh -c "echo 'E2E tests not configured. Add test:e2e script to frontend/package.json' && exit 1"
     profiles:
       - e2e
 

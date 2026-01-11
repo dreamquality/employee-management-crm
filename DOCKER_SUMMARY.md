@@ -179,7 +179,7 @@ services:
       frontend:
         condition: service_started
     # Note: Requires test:e2e script in frontend/package.json
-    command: sh -c "echo 'E2E tests not configured' && false"
+    command: sh -c "echo 'E2E tests not configured' && exit 1"
     profiles: [e2e]
 ```
 
