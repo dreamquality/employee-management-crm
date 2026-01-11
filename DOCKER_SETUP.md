@@ -54,12 +54,18 @@ Three profiles configured:
 ```bash
 cp .env.example .env
 cp .env.test.example .env.test
+cp .env.e2e.example .env.e2e  # For E2E tests
 ```
 
-2. **Update values in .env and .env.test** (especially secrets for production):
+2. **Update values in .env, .env.test, and .env.e2e** (especially secrets for production):
    - JWT_SECRET
    - SECRET_WORD
    - Database credentials
+
+**Important:** 
+- `.env` is for local development (browser runs on host, uses localhost URLs)
+- `.env.test` is for CI tests (no frontend, API tests only)
+- `.env.e2e` is for E2E tests (playwright runs in Docker, uses service names)
 
 ### Running Different Profiles
 
