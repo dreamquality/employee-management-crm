@@ -120,6 +120,7 @@ Run end-to-end tests (requires Playwright setup):
 docker compose --profile e2e up --abort-on-container-exit --exit-code-from playwright
 ```
 
+> Note: The `playwright` service in `docker-compose.yml` currently uses a placeholder command that exits with an error. Playwright is not configured by default. Before using the `e2e` profile, configure Playwright in the frontend and add a `test:e2e` script to `frontend/package.json` that runs your E2E tests. Until this is done, running the E2E profile will fail as expected.
 ### Docker Compose Profiles
 
 The application supports three profiles for different use cases:
