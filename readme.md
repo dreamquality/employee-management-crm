@@ -93,7 +93,7 @@ docker compose --profile dev up
 ```
 
 This starts:
-- **PostgreSQL Database** (internal only)
+- **PostgreSQL Database** (internal only - not exposed to host, accessible via `docker compose exec`)
 - **Backend API** on port 3000
 - **Frontend Application** on port 5173
 
