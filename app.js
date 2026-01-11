@@ -57,6 +57,11 @@ app.get("/api-docs.json", (req, res) => {
   res.send(swaggerSpec);
 });
 
+// Health check endpoint for Docker
+app.get("/health", (req, res) => {
+  res.status(200).json({ status: "ok" });
+});
+
 // Маршруты
 app.use(authRoutes);
 app.use(userRoutes);

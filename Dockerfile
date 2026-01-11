@@ -13,8 +13,16 @@ RUN npm config set strict-ssl false && npm install
 # Копируем остальной код приложения
 COPY . .
 
+# Копируем entrypoint скрипты и делаем их исполняемыми
+COPY entrypoint.sh /entrypoint.sh
+COPY entrypoint-test.sh /entrypoint-test.sh
+RUN chmod +x /entrypoint.sh /entrypoint-test.sh
+
 # Указываем порт, который будет использоваться
 EXPOSE 3000
+
+# Устанавливаем entrypoint
+ENTRYPOINT ["/entrypoint.sh"]
 
 # Команда для запуска приложения
 CMD ["npm", "start"]
