@@ -133,7 +133,7 @@ services:
         condition: service_healthy
     command: npm run dev
     healthcheck:                   # ✅ Health check added
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3000/health"]
+      test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -179,7 +179,7 @@ services:
       frontend:
         condition: service_started
     # Note: Requires test:e2e script in frontend/package.json
-    command: echo "E2E tests not configured"
+    command: sh -c "echo 'E2E tests not configured' && false"
     profiles: [e2e]
 ```
 

@@ -95,7 +95,8 @@ services:
       - ./frontend:/app
       - /app/node_modules
     # Update this command based on your E2E test setup
-    command: echo "E2E tests not configured. Add 'npm run test:e2e' to frontend/package.json"
+    # Using 'false' to fail if E2E tests are not configured
+    command: sh -c "echo 'E2E tests not configured. Add test:e2e script to frontend/package.json' && false"
     profiles:
       - e2e
 
