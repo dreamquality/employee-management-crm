@@ -21,7 +21,7 @@ services:
       - key: SECRET_WORD
         generateValue: true
       - key: CORS_ORIGIN
-        value: "*"
+        value: "*"  # TODO: Update to frontend URL after deployment for security
     
   # Frontend Application
   - type: web
@@ -38,7 +38,7 @@ services:
         fromService:
           type: web
           name: employee-management-api
-          property: host
+          property: host  # Provides URL like https://employee-management-api.onrender.com
 
 databases:
   - name: employee-management-db

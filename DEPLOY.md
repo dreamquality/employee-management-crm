@@ -36,6 +36,11 @@ The easiest way to deploy is using Render's Blueprint feature with the included 
      - Build and deploy the backend API
      - Build and deploy the frontend application
      - Link all services together automatically
+   
+   **Note**: The blueprint sets `CORS_ORIGIN=*` which allows all domains. For better security, update this after deployment:
+   - Go to backend service settings
+   - Change `CORS_ORIGIN` to your frontend URL (e.g., `https://employee-management-frontend.onrender.com`)
+   - Save and redeploy
 
 5. **Wait for Deployment**
    - Initial deployment takes 5-10 minutes

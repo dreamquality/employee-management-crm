@@ -12,8 +12,8 @@ COPY package*.json ./
 # Set NODE_ENV before install to exclude dev dependencies
 ENV NODE_ENV=production
 
-# Install only production dependencies
-RUN npm ci --omit=dev
+# Install dependencies (dev dependencies automatically excluded when NODE_ENV=production)
+RUN npm ci
 
 # Copy entrypoint script
 COPY entrypoint.sh /entrypoint.sh
