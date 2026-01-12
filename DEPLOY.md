@@ -38,11 +38,13 @@ The easiest way to deploy is using Render's Blueprint feature with the included 
      - Link all services together automatically
    
    **Important Configuration Notes**:
+   - The Blueprint sets `CORS_ORIGIN=*.onrender.com` which allows all Render-hosted subdomains
    - If you used different service names in the Blueprint, update the `VITE_API_URL` environment variable in the frontend service to match your backend URL
    - The default backend URL is: `https://employee-management-api.onrender.com`
-   - For better security in production, update `CORS_ORIGIN` in the backend service:
+   - For better security in production with custom domains, update `CORS_ORIGIN` in the backend service:
      - Go to backend service settings after deployment
-     - Change `CORS_ORIGIN` from `*` to your specific frontend URL (e.g., `https://employee-management-frontend.onrender.com`)
+     - Change `CORS_ORIGIN` to your specific frontend URL (e.g., `https://your-custom-domain.com`)
+     - For multiple origins, use comma-separated values (e.g., `https://app1.com,https://app2.com`)
      - Save and redeploy
    - Seeders are NOT run automatically in production for security. The default admin user will be created automatically by the application on first startup.
    - **IMPORTANT**: Change the default admin password (`admin@example.com / adminpassword`) immediately after first login!

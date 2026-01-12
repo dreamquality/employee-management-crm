@@ -21,7 +21,7 @@ services:
       - key: SECRET_WORD
         generateValue: true
       - key: CORS_ORIGIN
-        value: "*"  # Allow all origins; update to specific frontend URL after deployment for tighter security
+        value: "*.onrender.com"  # Allow all Render subdomains; update to specific frontend URL after deployment for tighter security
     
   # Frontend Application
   - type: web

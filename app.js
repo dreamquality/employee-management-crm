@@ -19,10 +19,41 @@ const cors = require("cors"); // Добавляем CORS
 app.use(express.json());
 
 // Настройка CORS - ДОЛЖНО БЫТЬ ПЕРЕД helmet!
+// Handle CORS_ORIGIN - can be "*", specific URL, or comma-separated list
+const allowedOrigins = process.env.CORS_ORIGIN 
+  ? process.env.CORS_ORIGIN.split(',').map(o => o.trim())
+  : ["*"];
+
 const corsOptions = {
-  origin: process.env.CORS_ORIGIN || "*", // Разрешаем все домены (можно настроить на конкретные)
+  origin: function (origin, callback) {
+    // Allow requests with no origin (like mobile apps, curl, Postman)
+    if (!origin) return callback(null, true);
+    
+    // Allow all origins if CORS_ORIGIN is "*"
+    if (allowedOrigins.includes("*")) {
+      return callback(null, true);
+    }
+    
+    // Check if origin is in allowed list or matches pattern
+    const isAllowed = allowedOrigins.some(allowedOrigin => {
+      // Exact match
+      if (allowedOrigin === origin) return true;
+      // Pattern match for .onrender.com domains
+      if (allowedOrigin.includes('*.onrender.com') && origin.endsWith('.onrender.com')) {
+        return true;
+      }
+      return false;
+    });
+    
+    if (isAllowed) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
   methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
   allowedHeaders: ["Content-Type", "Authorization"],
+  credentials: true, // Allow credentials
   preflightContinue: false,
   optionsSuccessStatus: 204
 };
