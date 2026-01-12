@@ -54,6 +54,8 @@ A modern, responsive React application built with Vite, Shadcn UI, and Tailwind 
    VITE_API_URL=http://localhost:3000
    ```
 
+   **Note for GitHub Codespaces**: Use `http://localhost:3000` - Codespaces automatically forwards ports, so this will work correctly.
+
 ## Development
 
 Start the development server:

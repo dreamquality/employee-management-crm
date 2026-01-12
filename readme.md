@@ -59,6 +59,87 @@ Employees can update their personal information, such as name, contact details, 
 ### Projects Management
 ![Projects Page](screenshots/projects-page.png)
 
+## Quick Start with GitHub Codespaces
+
+The easiest way to get started is using GitHub Codespaces, which provides a fully configured development environment in the cloud.
+
+### Prerequisites
+- A GitHub account
+- Access to GitHub Codespaces
+
+### Setup
+
+1. Click the **Code** button on the GitHub repository page
+2. Select the **Codespaces** tab
+3. Click **Create codespace on main** (or your preferred branch)
+
+GitHub will automatically:
+- Set up the development environment
+- Configure port forwarding for ports 3000 (backend) and 5173 (frontend)
+- Install VS Code extensions for linting and formatting
+
+### Running the Application
+
+Once your Codespace is ready:
+
+1. Copy environment files:
+   ```bash
+   cp .env.example .env
+   cp frontend/.env.example frontend/.env
+   ```
+
+2. Start all services with Docker Compose:
+   ```bash
+   docker compose --profile dev up
+   ```
+
+   This starts:
+   - **PostgreSQL Database** (internal only)
+   - **Backend API** on port 3000 (automatically forwarded)
+   - **Frontend Application** on port 5173 (automatically forwarded)
+
+3. Access the application:
+   - GitHub Codespaces will automatically forward ports
+   - Click on the "Ports" tab in VS Code to see forwarded ports
+   - Open the frontend URL (port 5173) in your browser
+
+**Default Admin Credentials:**
+- Email: `admin1@example.com`
+- Password: `adminpassword`
+
+### Manual Setup in Codespaces (without Docker)
+
+If you prefer to run services manually:
+
+1. **Terminal 1 - Backend**:
+   ```bash
+   npm install
+   npm run dev
+   ```
+
+2. **Terminal 2 - Frontend**:
+   ```bash
+   cd frontend
+   npm install
+   npm run dev
+   ```
+
+The backend runs on port 3000 and frontend on port 5173. Both ports are automatically forwarded by Codespaces.
+
+### Troubleshooting in Codespaces
+
+**Connection Refused Errors:**
+- Ensure backend is running on port 3000 (check terminal output)
+- Verify `.env` file exists with `PORT=3000`
+- Check port 3000 is forwarded in the Ports tab
+- Ensure `VITE_API_URL=http://localhost:3000` in `frontend/.env`
+
+**CORS Errors:**
+- Update `CORS_ORIGIN` in `.env` to match your Codespaces frontend URL
+- Or set `CORS_ORIGIN=*` for development
+
+For more details, see [.devcontainer/README.md](.devcontainer/README.md).
+
 ## Quick Start with Docker
 
 The application uses Docker Compose with profile-based execution for different environments.
