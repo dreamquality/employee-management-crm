@@ -35,10 +35,7 @@ services:
         - frontend/**
     envVars:
       - key: VITE_API_URL
-        fromService:
-          type: web
-          name: employee-management-api
-          property: host  # Returns hostname with protocol (https://employee-management-api.onrender.com)
+        value: https://employee-management-api.onrender.com  # Update if using custom domain or different service name
 
 databases:
   - name: employee-management-db

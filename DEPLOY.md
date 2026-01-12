@@ -37,10 +37,12 @@ The easiest way to deploy is using Render's Blueprint feature with the included 
      - Build and deploy the frontend application
      - Link all services together automatically
    
-   **Security Notes**:
-   - The blueprint sets `CORS_ORIGIN=*` by default to allow initial deployment. For better security in production:
+   **Important Configuration Notes**:
+   - If you used different service names in the Blueprint, update the `VITE_API_URL` environment variable in the frontend service to match your backend URL
+   - The default backend URL is: `https://employee-management-api.onrender.com`
+   - For better security in production, update `CORS_ORIGIN` in the backend service:
      - Go to backend service settings after deployment
-     - Change `CORS_ORIGIN` to your specific frontend URL (e.g., `https://employee-management-frontend.onrender.com`)
+     - Change `CORS_ORIGIN` from `*` to your specific frontend URL (e.g., `https://employee-management-frontend.onrender.com`)
      - Save and redeploy
    - Seeders are NOT run automatically in production for security. The default admin user will be created automatically by the application on first startup.
    - **IMPORTANT**: Change the default admin password (`admin@example.com / adminpassword`) immediately after first login!
