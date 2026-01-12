@@ -1,0 +1,48 @@
+# Dependencies
+node_modules/
+
+# Environment files (build args will be used instead)
+.env
+.env.*
+!.env.example
+
+# Git
+.git/
+.github/
+.gitignore
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Test files
+tests/
+coverage/
+*.test.js
+*.spec.js
+
+# Build artifacts (will be generated)
+dist/
+build/
+
+# Documentation
+*.md
+README.md
+
+# Development tools
+Dockerfile.dev
+
+# Misc
+.prettierrc
+.eslintrc*

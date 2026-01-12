@@ -1,6 +1,9 @@
 # Используем базовый образ Node.js
 # Note: curl is used for health checks and is available in the official Node.js images
-FROM node:18
+FROM node:18-slim
+
+# Install curl for health checks
+RUN apt-get update && apt-get install -y curl && rm -rf /var/lib/apt/lists/*
 
 # Устанавливаем рабочую директорию внутри контейнера
 WORKDIR /app
@@ -8,8 +11,9 @@ WORKDIR /app
 # Копируем package.json и package-lock.json
 COPY package*.json ./
 
-# Устанавливаем зависимости
-RUN npm config set strict-ssl false && npm install
+# Устанавливаем зависимости (используем npm ci для более надежной установки)
+# В продакшене используется NODE_ENV=production, что автоматически установит только production зависимости
+RUN npm ci
 
 # Копируем entrypoint скрипты и делаем их исполняемыми (copy before app code to avoid cache invalidation when only app code changes)
 COPY entrypoint.sh /entrypoint.sh

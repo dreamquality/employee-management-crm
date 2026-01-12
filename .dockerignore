@@ -1,0 +1,57 @@
+# Dependencies
+node_modules/
+frontend/node_modules/
+
+# Environment files
+.env
+.env.*
+!.env.example
+!.env.test.example
+!.env.e2e.example
+
+# Git
+.git/
+.github/
+.gitignore
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Test files and coverage
+tests/
+coverage/
+*.test.js
+
+# Documentation
+docs/
+screenshots/
+readme.md
+README.md
+*.md
+
+# Development tools
+.devcontainer/
+docker-compose.yml
+Dockerfile.dev
+
+# Build artifacts
+dist/
+build/
+frontend/dist/
+frontend/build/
+
+# Misc
+.prettierrc
+.eslintrc*

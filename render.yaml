@@ -1,0 +1,53 @@
+services:
+  # PostgreSQL Database
+  - type: pserv
+    name: employee-management-db
+    env: docker
+    plan: free
+    ipAllowList: []
+    
+  # Backend API
+  - type: web
+    name: employee-management-api
+    env: docker
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    plan: free
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 3000
+      - key: DATABASE_URL
+        fromDatabase:
+          name: employee-management-db
+          property: connectionString
+      - key: JWT_SECRET
+        generateValue: true
+      - key: SECRET_WORD
+        generateValue: true
+      - key: CORS_ORIGIN
+        value: "*"
+    
+  # Frontend Application
+  - type: web
+    name: employee-management-frontend
+    env: docker
+    dockerfilePath: ./frontend/Dockerfile
+    dockerContext: ./frontend
+    plan: free
+    buildFilter:
+      paths:
+        - frontend/**
+    envVars:
+      - key: VITE_API_URL
+        fromService:
+          type: web
+          name: employee-management-api
+          envVarKey: RENDER_EXTERNAL_URL
+
+databases:
+  - name: employee-management-db
+    databaseName: employee_db
+    plan: free
