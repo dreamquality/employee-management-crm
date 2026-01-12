@@ -1,0 +1,56 @@
+# Node modules
+node_modules
+npm-debug.log
+
+# Environment files (will be set via Render)
+.env
+.env.local
+.env.*.local
+.env.test
+.env.e2e
+
+# Git
+.git
+.gitignore
+
+# Documentation
+README.md
+readme.md
+docs/
+screenshots/
+
+# IDE
+.vscode
+.idea
+*.swp
+*.swo
+
+# Logs
+logs
+*.log
+
+# Tests
+tests/
+*.test.js
+.env.test.example
+.env.e2e.example
+entrypoint-test.sh
+
+# Frontend (backend build doesn't need it)
+frontend/
+
+# Development files
+.devcontainer/
+docker-compose.yml
+Dockerfile.dev
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Build artifacts that should be built in container
+dist
+build
+
+# CI/CD
+.github/

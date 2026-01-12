@@ -1,6 +1,6 @@
 # Используем базовый образ Node.js
 # Note: curl is used for health checks and is available in the official Node.js images
-FROM node:18
+FROM node:20-slim
 
 # Устанавливаем рабочую директорию внутри контейнера
 WORKDIR /app
@@ -8,16 +8,25 @@ WORKDIR /app
 # Копируем package.json и package-lock.json
 COPY package*.json ./
 
-# Устанавливаем зависимости
-RUN npm config set strict-ssl false && npm install
+# Устанавливаем все зависимости (включая devDependencies для миграций)
+# sequelize-cli нужен для запуска миграций при старте
+RUN npm ci
 
-# Копируем entrypoint скрипты и делаем их исполняемыми (copy before app code to avoid cache invalidation when only app code changes)
+# Копируем entrypoint скрипт и делаем его исполняемым
+# (copy before app code to avoid cache invalidation when only app code changes)
 COPY entrypoint.sh /entrypoint.sh
-COPY entrypoint-test.sh /entrypoint-test.sh
-RUN chmod +x /entrypoint.sh /entrypoint-test.sh
+RUN chmod +x /entrypoint.sh
 
 # Копируем остальной код приложения
 COPY . .
+
+# Создаем непривилегированного пользователя для безопасности
+RUN groupadd -r appuser && useradd -r -g appuser appuser && \
+    chown -R appuser:appuser /app && \
+    chown appuser:appuser /entrypoint.sh
+
+# Переключаемся на непривилегированного пользователя
+USER appuser
 
 # Указываем порт, который будет использоваться
 EXPOSE 3000
