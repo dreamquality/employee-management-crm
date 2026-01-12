@@ -371,9 +371,183 @@ For more details about the frontend, see the [frontend README](./frontend/README
 
 ## Deployment
 
-### Deploying to Render.com
+### Deploying to Render.com with Docker (Recommended)
 
-This application consists of two parts that need to be deployed: the backend API and the frontend application. Follow these comprehensive steps to deploy both to Render.
+This application is fully configured for deployment to Render using Docker containers and Infrastructure as Code via the `render.yaml` blueprint file. This is the **recommended and easiest method** for deployment.
+
+#### Prerequisites
+
+1. **Create a Render Account**: Sign up at [Render.com](https://render.com/)
+2. **GitHub Repository**: Ensure your code is pushed to a GitHub repository
+3. **Prepare Environment Variables**: Have your JWT secret and other configuration values ready
+
+#### Quick Deploy with render.yaml (Infrastructure as Code)
+
+The repository includes a `render.yaml` file that defines all infrastructure needed for the application. This allows you to deploy the entire stack with just a few clicks.
+
+**Step 1: Fork or Push to Your GitHub Repository**
+
+Ensure the code (including the `render.yaml` file) is in your GitHub repository.
+
+**Step 2: Create New Blueprint Instance**
+
+1. Log in to your [Render Dashboard](https://dashboard.render.com/)
+2. Click **New +** and select **Blueprint**
+3. Connect your GitHub repository
+4. Select the repository containing the `render.yaml` file
+5. Render will automatically detect the blueprint file
+
+**Step 3: Review and Configure**
+
+Render will show you the services that will be created:
+- **employee-management-db**: PostgreSQL database (Free tier)
+- **employee-management-api**: Backend API web service (Docker)
+- **employee-management-frontend**: Frontend static site (Docker)
+
+**Step 4: Set Environment Variables (Optional)**
+
+The `render.yaml` file includes auto-generated secrets for `JWT_SECRET` and `SECRET_WORD`. You can:
+- Keep the auto-generated values (recommended for production)
+- Or override them in the Render dashboard after deployment
+
+**Step 5: Deploy**
+
+1. Click **Apply** to create all services
+2. Render will:
+   - Create the PostgreSQL database
+   - Build and deploy the backend API using the root `Dockerfile`
+   - Build and deploy the frontend using the `frontend/Dockerfile`
+   - Run database migrations automatically via the entrypoint script
+   - Connect all services together
+
+3. Wait for all services to complete their first deployment (usually 5-10 minutes)
+
+**Step 6: Access Your Application**
+
+Once deployment is complete:
+1. Find your frontend URL in the Render dashboard (e.g., `https://employee-management-frontend.onrender.com`)
+2. Visit the URL in your browser
+3. Log in with default admin credentials:
+   - Email: `admin1@example.com`
+   - Password: `adminpassword`
+
+#### Important Configuration Notes
+
+**Service Names**: If you want to customize service names, edit the `render.yaml` file before deployment:
+```yaml
+services:
+  - type: web
+    name: my-custom-api-name  # Change this
+```
+
+**Region**: The default region is `oregon`. You can change this in `render.yaml`:
+```yaml
+services:
+  - type: web
+    region: frankfurt  # or singapore, ohio, etc.
+```
+
+**CORS Configuration**: The backend's `CORS_ORIGIN` environment variable is pre-configured in `render.yaml` to point to the frontend service. If you change the frontend service name, update this value accordingly.
+
+**Auto-Deploy**: The services are configured with `autoDeploy: true`, meaning every push to your `main` branch will trigger a new deployment.
+
+#### What Happens During Deployment
+
+1. **Database Setup**:
+   - PostgreSQL 16 database is created
+   - Connection URL is automatically passed to the backend service
+
+2. **Backend Deployment**:
+   - Docker image is built using the root `Dockerfile`
+   - Dependencies are installed via `npm ci`
+   - Non-root user is created for security
+   - Entrypoint script runs database migrations automatically
+   - Application starts on port 3000
+   - Health check endpoint (`/health`) is monitored
+
+3. **Frontend Deployment**:
+   - Docker image is built using `frontend/Dockerfile` (multi-stage build)
+   - Build stage: npm packages installed, Vite build runs with API URL
+   - Production stage: Static files served via Nginx
+   - Application runs on port 80
+
+#### Post-Deployment Tasks
+
+1. **Update Admin Password**:
+   - Log in with the default credentials
+   - Change the admin password immediately for security
+
+2. **Configure Custom Domain** (Optional):
+   - In Render dashboard, go to each service settings
+   - Add your custom domain
+   - Update CORS settings if using a custom domain
+
+3. **Set up Monitoring**:
+   - Enable email notifications for deployment failures
+   - Monitor logs in the Render dashboard
+
+4. **Database Backups** (Recommended for Production):
+   - Upgrade from Free to Starter plan for automatic backups
+   - Free tier databases are not backed up
+
+#### Updating Your Deployment
+
+To update your application:
+1. Push changes to your GitHub repository
+2. Render will automatically rebuild and redeploy (if autoDeploy is enabled)
+3. Database migrations run automatically on each backend deployment
+
+To manually trigger a deployment:
+1. Go to the service in Render dashboard
+2. Click **Manual Deploy** → **Deploy latest commit**
+
+#### Environment Variables Reference
+
+**Backend (`employee-management-api`)**:
+- `NODE_ENV`: Set to `production`
+- `PORT`: Set to `3000`
+- `DATABASE_URL`: Auto-populated from database service
+- `JWT_SECRET`: Auto-generated secure random string
+- `SECRET_WORD`: Auto-generated secure random string (for admin registration)
+- `CORS_ORIGIN`: Frontend URL for CORS configuration
+
+**Frontend (`employee-management-frontend`)**:
+- `VITE_API_URL`: Backend API URL (automatically configured in render.yaml)
+
+#### Troubleshooting
+
+**Build Failures**:
+- Check the build logs in Render dashboard
+- Ensure `Dockerfile` and `frontend/Dockerfile` are present
+- Verify `package.json` files are correct
+
+**Database Connection Issues**:
+- Verify `DATABASE_URL` is automatically set by Render
+- Check that database service is running and healthy
+- Review backend logs for connection errors
+
+**Frontend Not Connecting to Backend**:
+- Verify `VITE_API_URL` environment variable is set correctly
+- Check `CORS_ORIGIN` in backend matches frontend URL
+- Ensure backend service is running and accessible
+
+**Migration Failures**:
+- Check backend service logs for migration errors
+- Database migrations run automatically via `entrypoint.sh`
+- Ensure database is accessible and credentials are correct
+
+**Service Won't Start (Free Tier)**:
+- Free tier services spin down after 15 minutes of inactivity
+- First request after inactivity takes 30-50 seconds
+- Consider upgrading to a paid plan for always-on services
+
+For more help, refer to [Render's Blueprint documentation](https://render.com/docs/infrastructure-as-code) or check service logs in your Render dashboard.
+
+---
+
+### Alternative: Manual Deployment to Render.com
+
+If you prefer to manually configure services without using the `render.yaml` blueprint, you can follow these steps. **Note**: The Docker/Blueprint method above is recommended as it's faster and less error-prone.
 
 #### Prerequisites
 
@@ -394,7 +568,7 @@ This application consists of two parts that need to be deployed: the backend API
 4. Once created, copy the **Internal Database URL** (it starts with `postgres://`)
 5. Save this URL - you'll need it for the backend configuration
 
-#### Step 2: Deploy Backend API
+#### Step 2: Deploy Backend API with Docker
 
 1. From your Render dashboard, click **New +** and select **Web Service**
 2. Connect your GitHub repository
@@ -403,15 +577,9 @@ This application consists of two parts that need to be deployed: the backend API
    - **Region**: Same as your database for better performance
    - **Branch**: `main` (or your production branch)
    - **Root Directory**: Leave empty (backend is at root level)
-   - **Runtime**: `Node`
-   - **Build Command**: 
-     ```bash
-     npm install && npm run build-prod
-     ```
-   - **Start Command**:
-     ```bash
-     npm start
-     ```
+   - **Runtime**: `Docker`
+   - **Dockerfile Path**: `./Dockerfile`
+   - **Docker Context**: `.`
    - **Instance Type**: Select based on your needs (Free tier available)
 
 4. **Add Environment Variables** (click "Advanced" or go to Environment tab):
@@ -421,31 +589,32 @@ This application consists of two parts that need to be deployed: the backend API
    JWT_SECRET=<your-secure-jwt-secret>
    SECRET_WORD=<your-admin-registration-secret>
    PORT=3000
+   CORS_ORIGIN=<your-frontend-url>
    ```
 
    **Important Notes**:
    - Replace `<your-internal-database-url-from-step-1>` with the Internal Database URL from Step 1
    - Generate a strong random string for `JWT_SECRET` (e.g., use `openssl rand -base64 32`)
    - Set a secure `SECRET_WORD` for admin registration
-   - If using `DATABASE_URL`, the app will automatically parse it (no need for individual DB_HOST, DB_PORT, etc.)
+   - The `CORS_ORIGIN` should be your frontend URL (you can update this after deploying frontend)
+   - The app will automatically parse `DATABASE_URL` (no need for individual DB_HOST, DB_PORT, etc.)
 
 5. Click **Create Web Service**
-6. Render will automatically deploy your backend. Wait for the deployment to complete
+6. Render will automatically build the Docker image and deploy your backend. Wait for the deployment to complete
 7. Once deployed, copy your backend URL (e.g., `https://employee-management-api.onrender.com`)
 
-#### Step 3: Deploy Frontend Application
+#### Step 3: Deploy Frontend Application with Docker
 
-1. From your Render dashboard, click **New +** and select **Static Site**
+1. From your Render dashboard, click **New +** and select **Web Service** (not Static Site, because we're using Docker)
 2. Connect the same GitHub repository
-3. Configure the static site:
+3. Configure the web service:
    - **Name**: `employee-management-frontend` (or your preferred name)
    - **Branch**: `main` (or your production branch)
    - **Root Directory**: `frontend`
-   - **Build Command**:
-     ```bash
-     npm install && npm run build
-     ```
-   - **Publish Directory**: `frontend/dist`
+   - **Runtime**: `Docker`
+   - **Dockerfile Path**: `./frontend/Dockerfile`
+   - **Docker Context**: `./frontend`
+   - **Instance Type**: Select based on your needs (Free tier available)
 
 4. **Add Environment Variables**:
    ```plaintext
@@ -454,17 +623,14 @@ This application consists of two parts that need to be deployed: the backend API
    - Replace `<your-backend-url-from-step-2>` with your backend URL (e.g., `https://employee-management-api.onrender.com`)
    - **Do not include a trailing slash** in the API URL
 
-5. Click **Create Static Site**
-6. Render will build and deploy your frontend
+5. Click **Create Web Service**
+6. Render will build the Docker image (including Vite build with the API URL baked in) and deploy your frontend
 7. Once deployed, you'll receive a URL for your frontend (e.g., `https://employee-management-frontend.onrender.com`)
 
-#### Step 4: Update CORS Settings (if needed)
-
-If your frontend and backend are on different domains, you may need to update CORS settings in your backend:
-
-1. Go to your backend service in Render
-2. Update the environment variables to include your frontend URL in any CORS configuration
-3. Redeploy if necessary
+8. **Update Backend CORS Settings**:
+   - Go back to your backend service settings
+   - Update the `CORS_ORIGIN` environment variable with your frontend URL
+   - Trigger a manual redeploy of the backend
 
 #### Post-Deployment
 
@@ -514,6 +680,99 @@ If your frontend and backend are on different domains, you may need to update CO
 - Ensure database is accessible from the backend service
 
 For more help, refer to [Render's documentation](https://render.com/docs) or check the service logs in your Render dashboard.
+
+---
+
+## Docker Configuration
+
+This application is fully containerized and optimized for production deployment. Both the backend and frontend use multi-stage Docker builds for efficiency and security.
+
+### Backend Dockerfile
+
+**Location**: `./Dockerfile`
+
+**Key Features**:
+- Uses Node.js 20 slim image for smaller size
+- Installs all dependencies (including devDependencies needed for migrations)
+- Creates a non-root user (`appuser`) for enhanced security
+- Runs migrations automatically via `entrypoint.sh`
+- Exposes port 3000
+- Optimized layer caching for faster rebuilds
+
+**Build Process**:
+1. Copies `package.json` and `package-lock.json`
+2. Runs `npm ci` to install dependencies
+3. Copies entrypoint script and makes it executable
+4. Copies application code
+5. Creates non-root user and sets permissions
+6. Sets entrypoint to run migrations before starting app
+
+**Environment Variables Required**:
+- `NODE_ENV`: Should be `production`
+- `DATABASE_URL`: PostgreSQL connection string
+- `JWT_SECRET`: Secret key for JWT tokens
+- `SECRET_WORD`: Secret for admin registration
+- `PORT`: Port number (default: 3000)
+- `CORS_ORIGIN`: Frontend URL for CORS
+
+### Frontend Dockerfile
+
+**Location**: `./frontend/Dockerfile`
+
+**Key Features**:
+- Multi-stage build for optimal size
+- Build stage uses Node.js 20 Alpine
+- Production stage uses Nginx Alpine for serving static files
+- Accepts `VITE_API_URL` as build argument
+- Includes custom Nginx configuration for SPA routing
+- Optimized caching headers for static assets
+
+**Build Process**:
+1. **Build Stage**:
+   - Copies `package.json` and `package-lock.json`
+   - Runs `npm install` to install dependencies
+   - Accepts `VITE_API_URL` build argument
+   - Copies source code
+   - Runs `npm run build` to create production build
+   
+2. **Production Stage**:
+   - Starts from Nginx Alpine image
+   - Copies built assets from build stage
+   - Copies custom Nginx configuration
+   - Exposes port 80
+
+**Build Arguments**:
+- `VITE_API_URL`: Backend API URL (must be set at build time)
+
+**Example Build Command**:
+```bash
+docker build --build-arg VITE_API_URL=https://api.example.com -t frontend ./frontend
+```
+
+### Docker Ignore Files
+
+Both services include `.dockerignore` files to exclude unnecessary files from the build context:
+
+**Backend** (`.dockerignore`):
+- Excludes: `node_modules`, tests, frontend, documentation, `.env` files, git files, IDE configs
+
+**Frontend** (`frontend/.dockerignore`):
+- Excludes: `node_modules`, `.env` files, git files, IDE configs, development Dockerfile
+
+### Entrypoint Script
+
+**Location**: `./entrypoint.sh`
+
+The backend uses an entrypoint script that:
+1. Runs database migrations using `npx sequelize-cli db:migrate`
+2. Starts the application with the provided command (default: `npm start`)
+3. Includes error handling with `set -e`
+
+This ensures migrations are always applied before the application starts, maintaining database schema consistency.
+
+### Health Checks
+
+The backend includes a health check endpoint at `/health` that Render uses to verify the service is running correctly.
 
 ### Legacy Docker Setup (Old Method)
 
