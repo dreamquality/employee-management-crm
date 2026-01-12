@@ -132,11 +132,12 @@ The backend runs on port 3000 and frontend on port 5173. Both ports are automati
 - Ensure backend is running on port 3000 (check terminal output)
 - Verify `.env` file exists with `PORT=3000`
 - Check port 3000 is forwarded in the Ports tab
-- Ensure `VITE_API_URL=http://localhost:3000` in `frontend/.env`
+- For Docker setup: Ensure `VITE_API_URL=http://app:3000` in `frontend/.env`
+- For manual setup (without Docker): Ensure `VITE_API_URL=http://localhost:3000` in `frontend/.env`
 
 **CORS Errors:**
 - Update `CORS_ORIGIN` in `.env` to match your Codespaces frontend URL
-- Or set `CORS_ORIGIN=*` for development
+- Or set `CORS_ORIGIN=*` for development (recommended for Docker)
 
 For more details, see [.devcontainer/README.md](.devcontainer/README.md).
 
@@ -253,6 +254,7 @@ The refactored Docker setup includes:
 | Can't connect to DB from host | DB is internal only, use: `docker compose exec db psql -U postgres` |
 | Health check fails | Check logs: `docker compose logs app` |
 | CORS errors in browser | Check `CORS_ORIGIN` in `.env` file |
+| Frontend can't connect to backend (ERR_CONNECTION_REFUSED) | Ensure `VITE_API_URL=http://app:3000` in `.env` (use service name, not localhost) |
 
 ### GitHub Actions Integration
 

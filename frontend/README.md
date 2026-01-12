@@ -54,6 +54,8 @@ A modern, responsive React application built with Vite, Shadcn UI, and Tailwind 
    VITE_API_URL=http://localhost:3000
    ```
 
+   **Note for Docker Compose**: If running with Docker, the `.env.example` file is already configured to use `http://app:3000` (the Docker service name). Just copy it as-is.
+   
    **Note for GitHub Codespaces**: Use `http://localhost:3000` - Codespaces automatically forwards ports, so this will work correctly.
 
 ## Development
