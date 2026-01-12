@@ -255,7 +255,10 @@ You can add custom domains to your services:
 5. Save and wait for automatic redeploy
 6. Clear browser cache and try again
 
-**Other Solutions**:
+**Other Checks**:
+- Verify backend is running (visit `/health` endpoint)
+- Check `CORS_ORIGIN` in backend includes your frontend URL or uses `*.onrender.com`
+- Ensure no trailing slash in VITE_API_URL
 
 ### Database Connection Issues
 
@@ -266,16 +269,6 @@ You can add custom domains to your services:
 2. Check database is in "Available" status
 3. Ensure backend and database are in the same region
 4. Check database logs for connection attempts
-
-### Frontend Can't Connect to Backend
-
-**Symptoms**: API requests fail, CORS errors in browser console
-
-**Solutions**:
-1. Verify `VITE_API_URL` is set correctly (no trailing slash)
-2. Check backend is running (visit `/health` endpoint)
-3. Update `CORS_ORIGIN` in backend to include frontend URL
-4. Clear browser cache and rebuild frontend
 
 ### Build Failures
 
