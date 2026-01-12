@@ -20,8 +20,8 @@ app.use(express.json());
 
 // Настройка CORS - ДОЛЖНО БЫТЬ ПЕРЕД helmet!
 // Handle CORS_ORIGIN - can be "*", specific URL, or comma-separated list
-const allowedOrigins = process.env.CORS_ORIGIN 
-  ? process.env.CORS_ORIGIN.split(',').map(o => o.trim())
+const allowedOrigins = (process.env.CORS_ORIGIN && process.env.CORS_ORIGIN.trim())
+  ? process.env.CORS_ORIGIN.split(',').map(o => o.trim()).filter(o => o.length > 0)
   : ["*"];
 
 const corsOptions = {
@@ -38,8 +38,8 @@ const corsOptions = {
     const isAllowed = allowedOrigins.some(allowedOrigin => {
       // Exact match
       if (allowedOrigin === origin) return true;
-      // Pattern match for .onrender.com domains
-      if (allowedOrigin.includes('*.onrender.com') && origin.endsWith('.onrender.com')) {
+      // Pattern match for .onrender.com domains (exact pattern match)
+      if (allowedOrigin === '*.onrender.com' && origin.endsWith('.onrender.com')) {
         return true;
       }
       return false;
