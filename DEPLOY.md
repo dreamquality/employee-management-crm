@@ -37,12 +37,20 @@ The easiest way to deploy is using Render's Blueprint feature with the included 
      - Build and deploy the frontend application
      - Link all services together automatically
    
-   **Important Configuration Notes**:
+   **⚠️ CRITICAL POST-DEPLOYMENT STEP**:
+   - **You MUST update the `VITE_API_URL`** in the frontend service after deployment!
+   - Render may add random suffixes to service names (e.g., `-ltsr`, `-6x6u`)
+   - Your actual backend URL might be: `https://employee-management-api-ltsr.onrender.com`
+   - To update:
+     1. Go to your frontend service in Render dashboard
+     2. Click **Environment** tab
+     3. Find `VITE_API_URL` and update it to your actual backend URL
+     4. Click **Save Changes** and the frontend will automatically redeploy
+   
+   **Other Configuration Notes**:
    - The Blueprint sets `CORS_ORIGIN=*.onrender.com` which allows all Render-hosted subdomains
-   - If you used different service names in the Blueprint, update the `VITE_API_URL` environment variable in the frontend service to match your backend URL
-   - The default backend URL is: `https://employee-management-api.onrender.com`
    - For better security in production with custom domains, update `CORS_ORIGIN` in the backend service:
-     - Go to backend service settings after deployment
+     - Go to backend service settings
      - Change `CORS_ORIGIN` to your specific frontend URL (e.g., `https://your-custom-domain.com`)
      - For multiple origins, use comma-separated values (e.g., `https://app1.com,https://app2.com`)
      - Save and redeploy
@@ -53,10 +61,21 @@ The easiest way to deploy is using Render's Blueprint feature with the included 
    - Initial deployment takes 5-10 minutes
    - Monitor progress in the Render dashboard
    - All services must show "Live" status
+   - **Note the actual URLs**: Render may add suffixes like `-ltsr` or `-6x6u` to your service names
 
-6. **Access Your Application**
-   - Frontend URL: `https://employee-management-frontend.onrender.com` (or your custom name)
-   - Backend API: `https://employee-management-api.onrender.com`
+6. **Update Frontend Configuration** (CRITICAL STEP)
+   - After backend deployment completes, note its actual URL from the Render dashboard
+   - It might be: `https://employee-management-api-ltsr.onrender.com` (with suffix)
+   - Go to your frontend service → Environment tab
+   - Update `VITE_API_URL` to match your actual backend URL
+   - Save and wait for automatic redeploy
+
+7. **Access Your Application**
+   - Frontend URL: Check your Render dashboard for the actual URL (may include suffix)
+   - Backend API: Check your Render dashboard for the actual URL (may include suffix)
+   - Example URLs:
+     - Frontend: `https://employee-management-frontend-6x6u.onrender.com`
+     - Backend: `https://employee-management-api-ltsr.onrender.com`
    - Default admin credentials:
      - Email: `admin@example.com`
      - Password: `adminpassword`
@@ -220,6 +239,23 @@ You can add custom domains to your services:
 5. Render provides free SSL for custom domains
 
 ## Troubleshooting
+
+### Frontend Can't Connect to Backend
+
+**Symptoms**: API requests fail, CORS errors, "Method Not Allowed", connection refused
+
+**Most Common Cause**: VITE_API_URL is pointing to wrong backend URL
+
+**Solution**:
+1. Check your actual backend URL in Render dashboard (may have suffix like `-ltsr`)
+2. Go to frontend service → Environment tab
+3. Update `VITE_API_URL` to match actual backend URL
+4. Example: Change from `https://employee-management-api.onrender.com` 
+   to `https://employee-management-api-ltsr.onrender.com`
+5. Save and wait for automatic redeploy
+6. Clear browser cache and try again
+
+**Other Solutions**:
 
 ### Database Connection Issues
 

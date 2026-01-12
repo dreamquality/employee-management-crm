@@ -35,7 +35,7 @@ services:
         - frontend/**
     envVars:
       - key: VITE_API_URL
-        value: https://employee-management-api.onrender.com  # Update if using custom domain or different service name
+        value: https://employee-management-api.onrender.com  # IMPORTANT: Update this after deployment to match your actual backend URL (e.g., employee-management-api-ltsr.onrender.com)
 
 databases:
   - name: employee-management-db
