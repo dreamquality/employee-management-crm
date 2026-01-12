@@ -12,7 +12,7 @@ WORKDIR /app
 COPY package*.json ./
 
 # Устанавливаем зависимости (используем npm ci для более надежной установки)
-# В продакшене используется NODE_ENV=production, что автоматически установит только production зависимости
+# На этапе сборки устанавливаются все зависимости; NODE_ENV=production задается на этапе запуска (например, через render.yaml) и не влияет на установку здесь
 RUN npm ci
 
 # Копируем entrypoint скрипты и делаем их исполняемыми (copy before app code to avoid cache invalidation when only app code changes)
