@@ -9,12 +9,11 @@ WORKDIR /app
 # Copy package files
 COPY package*.json ./
 
-# Set NODE_ENV before install to exclude dev dependencies
-ENV NODE_ENV=production
-
-# Install dependencies (dev dependencies automatically excluded when NODE_ENV=production)
+# Install all dependencies (including devDependencies needed for build/migrations)
 RUN npm ci
 
+# Set NODE_ENV=production for runtime
+ENV NODE_ENV=production
 # Copy entrypoint script
 COPY entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
