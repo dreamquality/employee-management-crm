@@ -6,7 +6,9 @@ WORKDIR /app
 # Copy package files
 COPY package*.json ./
 
-# Install dependencies using npm ci for reproducible builds
+# Install dependencies using npm ci
+# npm ci is faster and more reliable for production builds as it installs
+# directly from package-lock.json without modifying it (ensures reproducibility)
 RUN npm ci
 
 # Copy source code
