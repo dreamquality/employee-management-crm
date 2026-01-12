@@ -1,11 +1,4 @@
 services:
-  # PostgreSQL Database
-  - type: pserv
-    name: employee-management-db
-    env: docker
-    plan: free
-    ipAllowList: []
-    
   # Backend API
   - type: web
     name: employee-management-api
@@ -45,7 +38,7 @@ services:
         fromService:
           type: web
           name: employee-management-api
-          envVarKey: RENDER_EXTERNAL_URL
+          property: host
 
 databases:
   - name: employee-management-db

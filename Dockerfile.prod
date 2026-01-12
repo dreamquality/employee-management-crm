@@ -9,8 +9,11 @@ WORKDIR /app
 # Copy package files
 COPY package*.json ./
 
+# Set NODE_ENV before install to exclude dev dependencies
+ENV NODE_ENV=production
+
 # Install only production dependencies
-RUN npm ci --only=production
+RUN npm ci --omit=dev
 
 # Copy entrypoint script
 COPY entrypoint.sh /entrypoint.sh
