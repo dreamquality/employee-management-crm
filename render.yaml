@@ -32,6 +32,7 @@ services:
       - key: SECRET_WORD
         generateValue: true
       - key: CORS_ORIGIN
+        # NOTE: If you change the frontend service name below, update this URL accordingly
         value: https://employee-management-frontend.onrender.com
     autoDeploy: true
 
