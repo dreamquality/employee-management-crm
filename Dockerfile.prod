@@ -1,0 +1,31 @@
+# Production Dockerfile for Backend
+FROM node:18-slim
+
+# Install curl for health checks
+RUN apt-get update && apt-get install -y curl && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /app
+
+# Copy package files
+COPY package*.json ./
+
+# Install all dependencies (including devDependencies needed for build/migrations)
+RUN npm ci
+
+# Set NODE_ENV=production for runtime
+ENV NODE_ENV=production
+# Copy entrypoint script
+COPY entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
+
+# Copy application code
+COPY . .
+
+# Expose port
+EXPOSE 3000
+
+# Set entrypoint
+ENTRYPOINT ["/entrypoint.sh"]
+
+# Start application
+CMD ["npm", "start"]

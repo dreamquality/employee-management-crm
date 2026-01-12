@@ -19,10 +19,51 @@ const cors = require("cors"); // Добавляем CORS
 app.use(express.json());
 
 // Настройка CORS - ДОЛЖНО БЫТЬ ПЕРЕД helmet!
+// Handle CORS_ORIGIN - can be "*", specific URL, or comma-separated list
+const allowedOrigins = (process.env.CORS_ORIGIN && process.env.CORS_ORIGIN.trim())
+  ? process.env.CORS_ORIGIN.split(',').map(o => o.trim()).filter(o => o.length > 0)
+  : ["*"];
+
 const corsOptions = {
-  origin: process.env.CORS_ORIGIN || "*", // Разрешаем все домены (можно настроить на конкретные)
+  origin: function (origin, callback) {
+    // Allow requests with no origin (like mobile apps, curl, Postman)
+    if (!origin) return callback(null, true);
+    
+    // Allow all origins if CORS_ORIGIN is "*"
+    if (allowedOrigins.includes("*")) {
+      return callback(null, true);
+    }
+    
+    // Check if origin is in allowed list or matches pattern
+    const isAllowed = allowedOrigins.some(allowedOrigin => {
+      // Exact match
+      if (allowedOrigin === origin) return true;
+      // Pattern match for wildcard domains (e.g., *.onrender.com)
+      if (allowedOrigin.startsWith('*.')) {
+        const domain = allowedOrigin.slice(2); // Remove '*.'
+        // Ensure origin is https:// and ends with the domain
+        if (origin.startsWith('https://') && origin.endsWith('.' + domain)) {
+          // Extract hostname from origin (remove https://)
+          const hostname = origin.slice(8).split('/')[0];
+          // Ensure exactly one subdomain level (prevent evil.onrender.com.malicious.com)
+          const parts = hostname.split('.');
+          const domainParts = domain.split('.');
+          // hostname should have exactly one more part than domain
+          return parts.length === domainParts.length + 1 && hostname.endsWith('.' + domain);
+        }
+      }
+      return false;
+    });
+    
+    if (isAllowed) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
   methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
   allowedHeaders: ["Content-Type", "Authorization"],
+  credentials: true, // Allow credentials
   preflightContinue: false,
   optionsSuccessStatus: 204
 };
@@ -93,7 +134,7 @@ if (process.env.NODE_ENV !== "test") {
         // Создание администратора по умолчанию, если его нет
         const existingAdmin = await db.User.findOne({
           where: {
-            email: "admin1@example.com",
+            email: "admin@example.com",
           },
         });
 
@@ -109,14 +150,14 @@ if (process.env.NODE_ENV !== "test") {
               middleName: "User",
               birthDate: "1970-01-01",
               phone: "+0000000000",
-              email: "admin1@example.com",
+              email: "admin@example.com",
               programmingLanguage: "N/A",
               password: hashedPassword,
               role: "admin",
               hireDate: "2020-04-04",
             });
             console.log(
-              "Администратор по умолчанию создан: admin1@example.com / adminpassword"
+              "Администратор по умолчанию создан: admin@example.com / adminpassword"
             );
           } catch (createError) {
             // Игнорируем ошибку, если пользователь уже существует

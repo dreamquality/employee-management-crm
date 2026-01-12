@@ -101,7 +101,7 @@ The application will be available at `http://localhost`
 ## Default Credentials
 
 For testing, you can use the default admin account:
-- **Email**: `admin1@example.com`
+- **Email**: `admin@example.com`
 - **Password**: `adminpassword`
 
 ## License
