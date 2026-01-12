@@ -85,8 +85,9 @@ Once your Codespace is ready:
 1. Copy environment files:
    ```bash
    cp .env.example .env
-   cp frontend/.env.example frontend/.env
    ```
+   
+   **Note**: When using Docker Compose, the frontend service reads environment variables from the root `.env` file (not `frontend/.env`). The `VITE_API_URL` should be set to `http://localhost:3000` in the root `.env` file, which allows your browser to access the backend on the forwarded port.
 
 2. Start all services with Docker Compose:
    ```bash
@@ -109,7 +110,7 @@ Once your Codespace is ready:
 
 ### Manual Setup in Codespaces (without Docker)
 
-If you prefer to run services manually:
+If you prefer to run services manually (without Docker):
 
 1. **Terminal 1 - Backend**:
    ```bash
@@ -120,11 +121,14 @@ If you prefer to run services manually:
 2. **Terminal 2 - Frontend**:
    ```bash
    cd frontend
+   cp .env.example .env  # Create frontend/.env for manual setup
    npm install
    npm run dev
    ```
 
 The backend runs on port 3000 and frontend on port 5173. Both ports are automatically forwarded by Codespaces.
+
+**Note**: The `frontend/.env` file is only used when running the frontend manually (not with Docker). When using Docker Compose, environment variables are read from the root `.env` file.
 
 ### Troubleshooting in Codespaces
 
@@ -132,7 +136,8 @@ The backend runs on port 3000 and frontend on port 5173. Both ports are automati
 - Ensure backend is running on port 3000 (check terminal output)
 - Verify `.env` file exists with `PORT=3000`
 - Check port 3000 is forwarded in the Ports tab
-- Ensure `VITE_API_URL=http://localhost:3000` in `frontend/.env`
+- **For Docker setup**: Ensure `VITE_API_URL=http://localhost:3000` in the root `.env` file (not `frontend/.env`). Docker Compose reads from the root `.env` file.
+- **For manual setup (without Docker)**: Create `frontend/.env` with `VITE_API_URL=http://localhost:3000`
 
 **CORS Errors:**
 - Update `CORS_ORIGIN` in `.env` to match your Codespaces frontend URL
@@ -253,6 +258,7 @@ The refactored Docker setup includes:
 | Can't connect to DB from host | DB is internal only, use: `docker compose exec db psql -U postgres` |
 | Health check fails | Check logs: `docker compose logs app` |
 | CORS errors in browser | Check `CORS_ORIGIN` in `.env` file |
+| Frontend can't connect to backend (ERR_CONNECTION_REFUSED) | Ensure `VITE_API_URL=http://localhost:3000` is set in the **root** `.env` file. Docker Compose reads from the root `.env`, not `frontend/.env`. Verify backend is running: `docker compose ps` |
 
 ### GitHub Actions Integration
 
