@@ -1,5 +1,5 @@
 # Используем базовый образ Node.js
-# Note: curl is used for health checks and is available in the official Node.js images
+# Note: Render provides health check functionality that doesn't require curl in the container
 FROM node:20-slim
 
 # Устанавливаем рабочую директорию внутри контейнера
