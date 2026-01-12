@@ -29,8 +29,8 @@ Thumbs.db
 # Test files
 tests/
 coverage/
-*.test.js
-*.spec.js
+**/*.test.*
+**/*.spec.*
 
 # Build artifacts (will be generated)
 dist/
