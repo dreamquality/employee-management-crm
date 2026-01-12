@@ -120,7 +120,7 @@ Once your Codespace is ready:
    - Open the frontend URL (port 5173) in your browser
 
 **Default Admin Credentials:**
-- Email: `admin1@example.com`
+- Email: `admin@example.com`
 - Password: `adminpassword`
 
 ### Manual Setup in Codespaces (without Docker)
@@ -197,7 +197,7 @@ This starts:
 Access the application at `http://localhost:5173`
 
 **Default Admin Credentials:**
-- Email: `admin1@example.com`
+- Email: `admin@example.com`
 - Password: `adminpassword`
 
 #### CI Testing Mode

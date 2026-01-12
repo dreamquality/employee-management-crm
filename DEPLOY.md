@@ -37,10 +37,13 @@ The easiest way to deploy is using Render's Blueprint feature with the included 
      - Build and deploy the frontend application
      - Link all services together automatically
    
-   **Note**: The blueprint sets `CORS_ORIGIN=https://*.onrender.com`, which by default allows only Render-hosted frontends. If you use a custom domain or want to further restrict access, update this after deployment:
-   - Go to backend service settings
-   - Change `CORS_ORIGIN` to your frontend URL (e.g., `https://employee-management-frontend.onrender.com`)
-   - Save and redeploy
+   **Security Notes**:
+   - The blueprint sets `CORS_ORIGIN=*` by default to allow initial deployment. For better security in production:
+     - Go to backend service settings after deployment
+     - Change `CORS_ORIGIN` to your specific frontend URL (e.g., `https://employee-management-frontend.onrender.com`)
+     - Save and redeploy
+   - Seeders are NOT run automatically in production for security. The default admin user will be created automatically by the application on first startup.
+   - **IMPORTANT**: Change the default admin password (`admin@example.com / adminpassword`) immediately after first login!
 
 5. **Wait for Deployment**
    - Initial deployment takes 5-10 minutes
@@ -51,7 +54,7 @@ The easiest way to deploy is using Render's Blueprint feature with the included 
    - Frontend URL: `https://employee-management-frontend.onrender.com` (or your custom name)
    - Backend API: `https://employee-management-api.onrender.com`
    - Default admin credentials:
-     - Email: `admin1@example.com`
+     - Email: `admin@example.com`
      - Password: `adminpassword`
 
 ### Option 2: Manual Deployment
@@ -147,7 +150,7 @@ If you want to restrict API access to only your frontend:
 
 - Visit your frontend URL
 - Log in with default credentials:
-  - Email: `admin1@example.com`
+  - Email: `admin@example.com`
   - Password: `adminpassword`
 - Test key features:
   - View employees list

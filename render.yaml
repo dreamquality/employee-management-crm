@@ -21,7 +21,7 @@ services:
       - key: SECRET_WORD
         generateValue: true
       - key: CORS_ORIGIN
-        value: "https://employee-management-frontend.onrender.com"  # Specific frontend URL for tighter security
+        value: "*"  # Allow all origins; update to specific frontend URL after deployment for tighter security
     
   # Frontend Application
   - type: web
