@@ -38,7 +38,7 @@ services:
         fromService:
           type: web
           name: employee-management-api
-          property: host  # Returns full URL with protocol (https://employee-management-api.onrender.com)
+          property: url  # Returns full URL with protocol (https://employee-management-api.onrender.com)
 
 databases:
   - name: employee-management-db
