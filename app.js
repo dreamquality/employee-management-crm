@@ -77,7 +77,7 @@ console.log(`Используемый порт: ${process.env.PORT || 3000}`);
 
 // Получение публичного URL из переменной окружения или использование localhost как резервный вариант
 const publicUrl =
-  process.env.PUBLIC_URL || `http://localhost:${process.env.PORT || 10000}`;
+  process.env.PUBLIC_URL || `http://localhost:${process.env.PORT || 3000}`;
 
 // Initialize database and start server (only if not in test mode)
 if (process.env.NODE_ENV !== "test") {
@@ -134,7 +134,7 @@ if (process.env.NODE_ENV !== "test") {
         console.log("Планировщик уведомлений успешно запущен.");
 
         // Запуск сервера
-        const port = process.env.PORT || 10000;
+        const port = process.env.PORT || 3000;
         app.listen(port, () => {
           console.log(`Сервер запущен на порту ${port}`);
           console.log(`OpenAPI доступна по адресу ${publicUrl}/api-docs`);
