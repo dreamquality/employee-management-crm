@@ -38,9 +38,19 @@ const corsOptions = {
     const isAllowed = allowedOrigins.some(allowedOrigin => {
       // Exact match
       if (allowedOrigin === origin) return true;
-      // Pattern match for .onrender.com domains (exact pattern match)
-      if (allowedOrigin === '*.onrender.com' && origin.endsWith('.onrender.com')) {
-        return true;
+      // Pattern match for wildcard domains (e.g., *.onrender.com)
+      if (allowedOrigin.startsWith('*.')) {
+        const domain = allowedOrigin.slice(2); // Remove '*.'
+        // Ensure origin is https:// and ends with the domain
+        if (origin.startsWith('https://') && origin.endsWith('.' + domain)) {
+          // Extract hostname from origin (remove https://)
+          const hostname = origin.slice(8).split('/')[0];
+          // Ensure exactly one subdomain level (prevent evil.onrender.com.malicious.com)
+          const parts = hostname.split('.');
+          const domainParts = domain.split('.');
+          // hostname should have exactly one more part than domain
+          return parts.length === domainParts.length + 1 && hostname.endsWith('.' + domain);
+        }
       }
       return false;
     });
